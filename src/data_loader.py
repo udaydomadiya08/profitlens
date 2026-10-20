@@ -4,8 +4,9 @@ Provides pure Python/Pandas loading routines and DuckDB in-memory integration.
 """
 
 import os
-from io import StringIO, BytesIO
-from typing import Union, Optional, Any
+from io import BytesIO
+from typing import Any, Optional
+
 import duckdb
 import pandas as pd
 

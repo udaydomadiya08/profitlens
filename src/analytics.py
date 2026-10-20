@@ -4,11 +4,11 @@ Adheres strictly to the requirement of separating descriptive association from c
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
-import numpy as np
+from typing import Any, Dict, List, Optional, Tuple
 
-from src.metrics import calculate_financial_summary, FinancialSummary, safe_divide
+import pandas as pd
+
+from src.metrics import calculate_financial_summary, safe_divide
 
 
 @dataclass

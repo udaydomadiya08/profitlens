@@ -5,9 +5,9 @@ Outputs are strictly designated as estimates rather than forecasts.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import pandas as pd
-import numpy as np
 
 from src.metrics import calculate_financial_summary, FinancialSummary, safe_divide
 

@@ -4,9 +4,9 @@ Provides non-destructive audits with actionable recommendations.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
 import pandas as pd
-import numpy as np
 
 from src.data_loader import REQUIRED_COLUMNS
 
