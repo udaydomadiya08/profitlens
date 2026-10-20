@@ -3,6 +3,7 @@ ProfitLens - Executive Business Analytics Application.
 Streamlit interactive dashboard demonstrating the end-to-end analytical workflow.
 """
 
+import os
 from datetime import datetime
 from typing import Optional, Any
 import streamlit as st
@@ -86,10 +87,18 @@ st.markdown("""
 # ---------------------------------------------------------
 # Data Loading & Caching
 # ---------------------------------------------------------
+SAMPLE_DATASETS = {
+    "Omnichannel Retail Benchmark (Default)": "data/sample_retail_data.csv",
+    "Global Superstore (Tech, Furniture & Office Supplies)": "data/global_superstore.csv",
+    "Fashion & Apparel E-Commerce (Returns & Promotions)": "data/fashion_apparel.csv",
+    "D2C Health, Beauty & Cosmetics (CAC & High Margins)": "data/d2c_beauty_wellness.csv",
+    "B2B SaaS & Hardware Infrastructure (Enterprise Deals)": "data/b2b_saas_hardware.csv",
+}
+
 @st.cache_data(show_spinner=False)
-def get_dataset(uploaded_file=None):
-    if uploaded_file is not None:
-        return load_dataset(uploaded_file)
+def get_dataset(source_path_or_file=None):
+    if source_path_or_file is not None:
+        return load_dataset(source_path_or_file)
     return load_dataset("data/sample_retail_data.csv")
 
 
@@ -111,17 +120,38 @@ with st.sidebar:
     st.subheader("📁 Data Source")
     data_mode = st.radio(
         "Choose Data Source:",
-        ["Sample Retail Data (2023-2024)", "Upload Custom CSV"],
+        ["Curated Sample Datasets (5 Available)", "Upload Custom CSV"],
         index=0
     )
     
-    uploaded_file = None
+    active_source = None
     if data_mode == "Upload Custom CSV":
         uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
-        if uploaded_file is None:
+        if uploaded_file is not None:
+            active_source = uploaded_file
+        else:
             st.info("Using sample retail data until a file is uploaded.")
+            active_source = "data/sample_retail_data.csv"
+    else:
+        selected_sample_name = st.selectbox(
+            "Select Benchmark Dataset:",
+            list(SAMPLE_DATASETS.keys()),
+            index=0
+        )
+        active_source = SAMPLE_DATASETS[selected_sample_name]
+        
+        # Provide quick download button for the active sample CSV
+        if os.path.exists(active_source):
+            with open(active_source, "rb") as f_sample:
+                st.download_button(
+                    label=f"📥 Download '{os.path.basename(active_source)}'",
+                    data=f_sample.read(),
+                    file_name=os.path.basename(active_source),
+                    mime="text/csv",
+                    help="Download this dataset to inspect in Excel or test custom uploads."
+                )
     
-    df_raw = get_dataset(uploaded_file)
+    df_raw = get_dataset(active_source)
     
     st.divider()
     
