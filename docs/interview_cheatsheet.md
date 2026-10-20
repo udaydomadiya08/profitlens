@@ -177,7 +177,7 @@
 
 ```bash
 # Navigate to repository
-cd /Users/uday/Documents/uday_projects/profitlens
+cd profitlens
 
 # Run test suite with full coverage report (30 tests, 95% coverage)
 pytest --cov=src --cov-report=term-missing

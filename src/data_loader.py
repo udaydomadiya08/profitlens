@@ -3,10 +3,14 @@ Data loading and schema coercion module for ProfitLens.
 Provides pure Python/Pandas loading routines and DuckDB in-memory integration.
 """
 
+import os
 from io import StringIO, BytesIO
 from typing import Union, Optional, Tuple
 import duckdb
 import pandas as pd
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_SAMPLE_PATH = os.path.join(BASE_DIR, "data", "sample_retail_data.csv")
 
 # Core required columns without which baseline analysis cannot proceed
 REQUIRED_COLUMNS = [
@@ -58,7 +62,11 @@ def load_dataset(
         Cleaned, typed DataFrame with standard column names.
     """
     if source is None:
-        source = default_sample_path
+        source = DEFAULT_SAMPLE_PATH if os.path.exists(DEFAULT_SAMPLE_PATH) else default_sample_path
+    elif isinstance(source, str) and not os.path.exists(source):
+        alt_path = os.path.join(BASE_DIR, source)
+        if os.path.exists(alt_path):
+            source = alt_path
 
     if hasattr(source, "read") or isinstance(source, (str, bytes)):
         df = pd.read_csv(source)
