@@ -60,7 +60,7 @@ def load_dataset(
     if source is None:
         source = default_sample_path
 
-    if isinstance(source, (str, bytes, StringIO, BytesIO)):
+    if hasattr(source, "read") or isinstance(source, (str, bytes)):
         df = pd.read_csv(source)
     else:
         raise ValueError(f"Unsupported source type: {type(source)}")
@@ -141,4 +141,8 @@ def init_duckdb_session(df: Optional[pd.DataFrame] = None, table_name: str = "re
     con = duckdb.connect(database=":memory:")
     if df is not None and not df.empty:
         con.register(table_name, df)
+    elif df is not None:
+        # Register empty dataframe with known columns to prevent CatalogError
+        empty_cols = list(df.columns) if not df.columns.empty else ALL_KNOWN_COLUMNS
+        con.register(table_name, pd.DataFrame(columns=empty_cols))
     return con

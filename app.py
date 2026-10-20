@@ -97,9 +97,14 @@ def get_dataset(uploaded_file=None):
 # Sidebar Controls & Filters
 # ---------------------------------------------------------
 with st.sidebar:
-    st.image("https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&auto=format&fit=crop&q=60", use_container_width=True)
-    st.title("ProfitLens 🔍")
-    st.caption("Business Analytics & Decision Intelligence")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); padding: 18px 14px; border-radius: 10px; margin-bottom: 12px; text-align: center; color: white;">
+        <span style="font-size: 2.2rem;">🔍</span>
+        <h2 style="color: white; margin: 4px 0 0 0; font-size: 1.35rem; font-weight: 700;">ProfitLens</h2>
+        <p style="margin: 2px 0 0 0; font-size: 0.75rem; opacity: 0.9; letter-spacing: 0.5px;">BUSINESS & PROFIT INTELLIGENCE</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Analyst Portfolio Project | Illustrative Benchmark Engine")
     
     st.divider()
     
@@ -173,10 +178,17 @@ if exclude_returns and "returned" in df_filtered.columns:
 # ---------------------------------------------------------
 st.markdown("""
 <div class="portfolio-banner">
-    <h2 style="margin:0; font-size:1.8rem;">ProfitLens: Business Performance & Profit Intelligence</h2>
-    <p style="margin:6px 0 0 0; opacity:0.9; font-size:0.95rem;">
-        Complete Analytics Workflow: Problem Formulation → Data Audit → SQL/DuckDB Analysis → Variance Decomposition → Decision Simulator → Executive Reporting
-    </p>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="margin:0; font-size:1.75rem;">ProfitLens: Business Performance & Profit Intelligence</h2>
+            <p style="margin:6px 0 0 0; opacity:0.95; font-size:0.92rem;">
+                End-to-End Analytics Workflow: Business Problem → Data Validation → Columnar SQL → Variance Decomposition → Decision Simulator → Executive Briefing
+            </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; text-align: right;">
+            Illustrative Portfolio Demo<br><span style="font-weight:400; opacity:0.85;">Synthetic Retail Benchmark</span>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -360,104 +372,107 @@ with tab_performance:
     st.markdown("<div class=\"section-header\">Columnar SQL Analytics (Powered by DuckDB)</div>", unsafe_allow_html=True)
     st.caption("All aggregations below execute in-memory columnar SQL queries via DuckDB.")
     
-    con = init_duckdb_session(df_filtered, table_name="active_retail")
-    
-    # 1. Monthly Time Series
-    monthly_df, monthly_sql = query_monthly_trend(con, table_name="active_retail")
-    
-    if not monthly_df.empty:
-        st.subheader("Monthly Revenue, Profit & Margin Trajectory")
+    if df_filtered.empty:
+        st.warning("⚠️ No data matches the active filters. Please adjust your date range or dimension filters in the sidebar.")
+    else:
+        con = init_duckdb_session(df_filtered, table_name="active_retail")
         
-        fig_trend = go.Figure()
-        fig_trend.add_trace(go.Bar(
-            x=monthly_df["order_month"],
-            y=monthly_df["net_billed_revenue"],
-            name="Net Billed Revenue ($)",
-            marker_color="#3b82f6",
-            opacity=0.85
-        ))
-        fig_trend.add_trace(go.Bar(
-            x=monthly_df["order_month"],
-            y=monthly_df["estimated_profit"],
-            name="Estimated Profit ($)",
-            marker_color="#10b981",
-            opacity=0.9
-        ))
-        fig_trend.add_trace(go.Scatter(
-            x=monthly_df["order_month"],
-            y=monthly_df["profit_margin_pct"],
-            name="Profit Margin (%)",
-            yaxis="y2",
-            mode="lines+markers",
-            line=dict(color="#f59e0b", width=3)
-        ))
+        # 1. Monthly Time Series
+        monthly_df, monthly_sql = query_monthly_trend(con, table_name="active_retail")
         
-        fig_trend.update_layout(
-            barmode="group",
-            height=420,
-            margin=dict(l=20, r=20, t=30, b=20),
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-            yaxis=dict(title="Amount in USD ($)", gridcolor="#f1f5f9"),
-            yaxis2=dict(title="Profit Margin (%)", overlaying="y", side="right", range=[-10, 60]),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-        )
-        st.plotly_chart(fig_trend, use_container_width=True)
-
-    # 2. Categorical & Regional Breakdown
-    perf_col1, perf_col2 = st.columns(2)
-    
-    with perf_col1:
-        st.subheader("Performance by Product Category")
-        cat_df, cat_sql = query_dimension_breakdown(con, "product_category", table_name="active_retail")
-        if not cat_df.empty:
-            fig_cat = px.bar(
-                cat_df,
-                x="product_category",
-                y="net_billed_revenue",
-                color="profit_margin_pct",
-                color_continuous_scale="Tealgrn",
-                text="net_billed_revenue",
-                labels={"net_billed_revenue": "Net Revenue ($)", "profit_margin_pct": "Margin %", "product_category": "Category"}
+        if not monthly_df.empty:
+            st.subheader("Monthly Revenue, Profit & Margin Trajectory")
+            
+            fig_trend = go.Figure()
+            fig_trend.add_trace(go.Bar(
+                x=monthly_df["order_month"],
+                y=monthly_df["net_billed_revenue"],
+                name="Net Billed Revenue ($)",
+                marker_color="#3b82f6",
+                opacity=0.85
+            ))
+            fig_trend.add_trace(go.Bar(
+                x=monthly_df["order_month"],
+                y=monthly_df["estimated_profit"],
+                name="Estimated Profit ($)",
+                marker_color="#10b981",
+                opacity=0.9
+            ))
+            fig_trend.add_trace(go.Scatter(
+                x=monthly_df["order_month"],
+                y=monthly_df["profit_margin_pct"],
+                name="Profit Margin (%)",
+                yaxis="y2",
+                mode="lines+markers",
+                line=dict(color="#f59e0b", width=3)
+            ))
+            
+            fig_trend.update_layout(
+                barmode="group",
+                height=420,
+                margin=dict(l=20, r=20, t=30, b=20),
+                plot_bgcolor="white",
+                paper_bgcolor="white",
+                yaxis=dict(title="Amount in USD ($)", gridcolor="#f1f5f9"),
+                yaxis2=dict(title="Profit Margin (%)", overlaying="y", side="right", range=[-10, 60]),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
-            fig_cat.update_traces(texttemplate="$%{text:,.0f}", textposition="outside")
-            fig_cat.update_layout(plot_bgcolor="white", paper_bgcolor="white", height=350, margin=dict(l=10, r=10, t=20, b=10))
-            st.plotly_chart(fig_cat, use_container_width=True)
+            st.plotly_chart(fig_trend, use_container_width=True)
 
-    with perf_col2:
-        st.subheader("Performance by Region")
-        reg_df, reg_sql = query_dimension_breakdown(con, "region", table_name="active_retail")
-        if not reg_df.empty:
-            fig_reg = px.bar(
-                reg_df,
-                x="region",
-                y="estimated_profit",
-                color="profit_margin_pct",
-                color_continuous_scale="Blues",
-                text="estimated_profit",
-                labels={"estimated_profit": "Profit ($)", "profit_margin_pct": "Margin %", "region": "Region"}
+        # 2. Categorical & Regional Breakdown
+        perf_col1, perf_col2 = st.columns(2)
+        
+        with perf_col1:
+            st.subheader("Performance by Product Category")
+            cat_df, cat_sql = query_dimension_breakdown(con, "product_category", table_name="active_retail")
+            if not cat_df.empty:
+                fig_cat = px.bar(
+                    cat_df,
+                    x="product_category",
+                    y="net_billed_revenue",
+                    color="profit_margin_pct",
+                    color_continuous_scale="Tealgrn",
+                    text="net_billed_revenue",
+                    labels={"net_billed_revenue": "Net Revenue ($)", "profit_margin_pct": "Margin %", "product_category": "Category"}
+                )
+                fig_cat.update_traces(texttemplate="$%{text:,.0f}", textposition="outside")
+                fig_cat.update_layout(plot_bgcolor="white", paper_bgcolor="white", height=350, margin=dict(l=10, r=10, t=20, b=10))
+                st.plotly_chart(fig_cat, use_container_width=True)
+
+        with perf_col2:
+            st.subheader("Performance by Region")
+            reg_df, reg_sql = query_dimension_breakdown(con, "region", table_name="active_retail")
+            if not reg_df.empty:
+                fig_reg = px.bar(
+                    reg_df,
+                    x="region",
+                    y="estimated_profit",
+                    color="profit_margin_pct",
+                    color_continuous_scale="Blues",
+                    text="estimated_profit",
+                    labels={"estimated_profit": "Profit ($)", "profit_margin_pct": "Margin %", "region": "Region"}
+                )
+                fig_reg.update_traces(texttemplate="$%{text:,.0f}", textposition="outside")
+                fig_reg.update_layout(plot_bgcolor="white", paper_bgcolor="white", height=350, margin=dict(l=10, r=10, t=20, b=10))
+                st.plotly_chart(fig_reg, use_container_width=True)
+
+        # Cross-tabulation Heatmap: Category x Region
+        st.subheader("Category × Region Profitability Cross-Tabulation")
+        cross_df, cross_sql = query_cross_tabulation(con, table_name="active_retail", metric_col="estimated_profit")
+        if not cross_df.empty:
+            fig_heat = px.imshow(
+                cross_df,
+                text_auto=",.0f",
+                aspect="auto",
+                color_continuous_scale="RdYlGn",
+                labels=dict(x="Region", y="Category", color="Profit ($)")
             )
-            fig_reg.update_traces(texttemplate="$%{text:,.0f}", textposition="outside")
-            fig_reg.update_layout(plot_bgcolor="white", paper_bgcolor="white", height=350, margin=dict(l=10, r=10, t=20, b=10))
-            st.plotly_chart(fig_reg, use_container_width=True)
+            fig_heat.update_layout(height=320, margin=dict(l=20, r=20, t=20, b=20))
+            st.plotly_chart(fig_heat, use_container_width=True)
 
-    # Cross-tabulation Heatmap: Category x Region
-    st.subheader("Category × Region Profitability Cross-Tabulation")
-    cross_df, cross_sql = query_cross_tabulation(con, table_name="active_retail", metric_col="estimated_profit")
-    if not cross_df.empty:
-        fig_heat = px.imshow(
-            cross_df,
-            text_auto=",.0f",
-            aspect="auto",
-            color_continuous_scale="RdYlGn",
-            labels=dict(x="Region", y="Category", color="Profit ($)")
-        )
-        fig_heat.update_layout(height=320, margin=dict(l=20, r=20, t=20, b=20))
-        st.plotly_chart(fig_heat, use_container_width=True)
-
-    # Transparent SQL Query Inspector
-    with st.expander("💻 View Executed DuckDB SQL Statements"):
-        st.code(monthly_sql, language="sql")
+        # Transparent SQL Query Inspector
+        with st.expander("💻 View Executed DuckDB SQL Statements"):
+            st.code(monthly_sql, language="sql")
 
 
 # =========================================================
@@ -473,17 +488,23 @@ with tab_root_cause:
     st.info("💡 **Methodology Notice**: Descriptive findings quantify segment association with variations. A segment associated with a decline is not automatically its sole causal driver.")
     
     # Period selector for comparison
+    available_years = sorted(df_raw["order_date"].dt.year.dropna().unique().tolist()) if ("order_date" in df_raw.columns and not df_raw.empty) else [2023, 2024]
+    if len(available_years) < 2:
+        available_years = available_years + available_years  # Support single-year datasets gracefully
+
     rc_col1, rc_col2 = st.columns(2)
     with rc_col1:
         st.markdown("**Baseline Period (Prior)**")
-        prior_year = st.selectbox("Baseline Year:", [2023, 2024], index=0)
+        prior_year = st.selectbox("Baseline Year:", available_years, index=0, key="rc_prior_year_select")
         prior_data = df_raw[df_raw["order_date"].dt.year == prior_year]
     with rc_col2:
         st.markdown("**Comparison Period (Current)**")
-        curr_year = st.selectbox("Comparison Year:", [2023, 2024], index=1)
+        curr_year = st.selectbox("Comparison Year:", available_years, index=min(1, len(available_years)-1), key="rc_curr_year_select")
         curr_data = df_raw[df_raw["order_date"].dt.year == curr_year]
 
-    if prior_data.empty or curr_data.empty:
+    if prior_year == curr_year:
+        st.info("ℹ️ Select two different years above to analyze period-over-period variance decomposition.")
+    elif prior_data.empty or curr_data.empty:
         st.warning("Insufficient period data for root-cause comparison.")
     else:
         decomp = decompose_profit_variance(prior_data, curr_data)
@@ -696,13 +717,26 @@ with tab_report:
         else:
             rep_sim = simulate_scenario(df_filtered)
 
+        # Include root-cause variance and driver findings in report if prior period exists
+        r_decomp = None
+        r_pos, r_neg = None, None
+        if "df_prior" in locals() and not df_prior.empty and not df_filtered.empty:
+            try:
+                r_decomp = decompose_profit_variance(df_prior, df_filtered)
+                r_pos, r_neg = identify_top_contributors(df_prior, df_filtered, dimension_col="product_category", top_n=3)
+            except Exception:
+                pass
+
         # Build Markdown and HTML report
         report_markdown = generate_markdown_report(
             summary=rep_summary,
             validation_report=rep_val,
             start_date=rep_start,
             end_date=rep_end,
-            simulation_result=rep_sim
+            simulation_result=rep_sim,
+            pos_contributors=r_pos,
+            neg_contributors=r_neg,
+            variance_decomp=r_decomp
         )
         report_html = generate_html_report(report_markdown)
 
