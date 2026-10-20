@@ -1,9 +1,12 @@
 # ProfitLens 🔍 | Business Performance & Profit Intelligence Engine
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://profitlens.streamlit.app)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-In--Memory%20SQL-yellow.svg)](https://duckdb.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red.svg)](https://streamlit.io/)
-[![pytest](https://img.shields.io/badge/pytest-passing-brightgreen.svg)](https://pytest.org/)
+[![pytest](https://img.shields.io/badge/pytest-30%20passed%20(95%25%20cov)-brightgreen.svg)](https://pytest.org/)
+
+> 🚀 **Live Demo:** [**Open ProfitLens on Streamlit Cloud**](https://profitlens.streamlit.app)  
+> *One-Click Streamlit Cloud Deploy Link:* [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=udaydomadiya08/profitlens&branch=main&mainModule=app.py)
 
 **ProfitLens** is an end-to-end business analytics application designed as a portfolio showcase for Senior Analyst and Analytics Engineering roles. It demonstrates the complete analytical lifecycle:
 
@@ -138,10 +141,11 @@ All calculations adhere strictly to standard managerial accounting:
 
 ## 5. Automated Testing Suite
 
-ProfitLens includes 26 unit tests verifying calculations against hand-calculated financial fixtures:
+ProfitLens includes 30 unit tests verifying calculations against hand-calculated financial fixtures, zero-denominator safeguards, and end-to-end workflows (**95% test line coverage**):
 
 ```bash
-pytest -v
+# Run complete test suite with coverage report
+pytest --cov=src --cov-report=term-missing
 ```
 
 ```
@@ -149,10 +153,14 @@ tests/test_analytics.py::test_sql_vs_pandas_financial_equivalence PASSED
 tests/test_analytics.py::test_dimension_breakdown_query PASSED
 tests/test_analytics.py::test_profit_variance_decomposition PASSED
 tests/test_analytics.py::test_identify_top_contributors PASSED
+tests/test_analytics.py::test_sql_cross_tab_and_filters PASSED
 tests/test_data_loader.py::test_load_sample_retail_data_exists PASSED
 tests/test_data_loader.py::test_load_from_stringio_buffer PASSED
 tests/test_data_loader.py::test_type_coercion PASSED
 tests/test_data_loader.py::test_init_duckdb_session PASSED
+tests/test_e2e_workflow.py::test_complete_analyst_workflow_sample_data PASSED
+tests/test_e2e_workflow.py::test_custom_uploaded_csv_workflow PASSED
+tests/test_e2e_workflow.py::test_empty_filter_safety PASSED
 tests/test_metrics.py::test_hand_calculated_financials PASSED
 tests/test_metrics.py::test_empty_dataframe_financials PASSED
 tests/test_metrics.py::test_safe_divide PASSED
@@ -171,6 +179,9 @@ tests/test_validation.py::test_non_positive_unit_price PASSED
 tests/test_validation.py::test_negative_unit_cost PASSED
 tests/test_validation.py::test_discount_exceeds_unit_price PASSED
 tests/test_validation.py::test_duplicate_rows_warning PASSED
+
+============================== 30 passed in 2.35s ==============================
+TOTAL Coverage: 95%
 ```
 
 ---
