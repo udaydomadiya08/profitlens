@@ -115,7 +115,17 @@ def generate_markdown_report(
         md.append(f"\n{simulation_result.narrative_summary}\n")
         
         sim_df = simulation_result.to_dataframe()
-        md.append(sim_df.to_markdown(index=False))
+        try:
+            md.append(sim_df.to_markdown(index=False))
+        except (ImportError, Exception):
+            headers = [str(c) for c in sim_df.columns]
+            header_row = "| " + " | ".join(headers) + " |"
+            sep_row = "| " + " | ".join(["---"] * len(headers)) + " |"
+            data_rows = [
+                "| " + " | ".join(str(val) for val in row) + " |"
+                for row in sim_df.itertuples(index=False)
+            ]
+            md.append("\n".join([header_row, sep_row] + data_rows))
         md.append("")
 
     # 6. Strategic Recommendations
