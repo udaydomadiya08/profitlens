@@ -3,14 +3,15 @@ ProfitLens - Executive Business Analytics Application.
 Streamlit interactive dashboard demonstrating the end-to-end analytical workflow.
 """
 
+from datetime import datetime
+from typing import Optional, Any
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
 
-from src.data_loader import load_dataset, init_duckdb_session, REQUIRED_COLUMNS
+from src.data_loader import load_dataset, init_duckdb_session
 from src.validation import validate_dataset
 from src.metrics import calculate_financial_summary, compare_periods, safe_divide
 from src.sql_queries import query_monthly_trend, query_dimension_breakdown, query_cross_tabulation
@@ -155,22 +156,24 @@ with st.sidebar:
 
 
 # ---------------------------------------------------------
-# Filter Dataset
-# ---------------------------------------------------------
-df_filtered = df_raw.copy()
+df_filtered: pd.DataFrame = pd.DataFrame(df_raw.copy())
 
 if isinstance(date_selection, tuple) and len(date_selection) == 2:
     start_dt, end_dt = pd.to_datetime(date_selection[0]), pd.to_datetime(date_selection[1]) + pd.Timedelta(days=1)
-    df_filtered = df_filtered[(df_filtered["order_date"] >= start_dt) & (df_filtered["order_date"] < end_dt)]
+    df_filtered = pd.DataFrame(df_filtered[(df_filtered["order_date"] >= start_dt) & (df_filtered["order_date"] < end_dt)])
 
 if selected_regions:
-    df_filtered = df_filtered[df_filtered["region"].isin(selected_regions)]
+    df_filtered = pd.DataFrame(df_filtered[df_filtered["region"].isin(selected_regions)])
 
 if selected_categories:
-    df_filtered = df_filtered[df_filtered["product_category"].isin(selected_categories)]
+    df_filtered = pd.DataFrame(df_filtered[df_filtered["product_category"].isin(selected_categories)])
 
 if exclude_returns and "returned" in df_filtered.columns:
-    df_filtered = df_filtered[df_filtered["returned"] == 0]
+    df_filtered = pd.DataFrame(df_filtered[df_filtered["returned"] == 0])
+
+# Pre-declared references to prevent unbound issues across tabs
+df_prior: Optional[pd.DataFrame] = None
+sim_result: Optional[Any] = None
 
 
 # ---------------------------------------------------------
@@ -218,14 +221,14 @@ with tab_overview:
         date_span = (df_filtered["order_date"].max() - df_filtered["order_date"].min()).days
         prior_end = df_filtered["order_date"].min()
         prior_start = prior_end - pd.Timedelta(days=max(date_span, 30))
-        df_prior = df_raw[
+        df_prior = pd.DataFrame(df_raw[
             (df_raw["order_date"] >= prior_start) & 
             (df_raw["order_date"] < prior_end) & 
             (df_raw["region"].isin(selected_regions if selected_regions else available_regions)) &
             (df_raw["product_category"].isin(selected_categories if selected_categories else available_categories))
-        ]
+        ])
         if exclude_returns and "returned" in df_prior.columns:
-            df_prior = df_prior[df_prior["returned"] == 0]
+            df_prior = pd.DataFrame(df_prior[df_prior["returned"] == 0])
             
         prior_summary = calculate_financial_summary(df_prior)
         pop_comparison = compare_periods(prior_summary, summary)
@@ -462,7 +465,7 @@ with tab_performance:
         if not cross_df.empty:
             fig_heat = px.imshow(
                 cross_df,
-                text_auto=",.0f",
+                text_auto=True,
                 aspect="auto",
                 color_continuous_scale="RdYlGn",
                 labels=dict(x="Region", y="Category", color="Profit ($)")
@@ -496,11 +499,11 @@ with tab_root_cause:
     with rc_col1:
         st.markdown("**Baseline Period (Prior)**")
         prior_year = st.selectbox("Baseline Year:", available_years, index=0, key="rc_prior_year_select")
-        prior_data = df_raw[df_raw["order_date"].dt.year == prior_year]
+        prior_data = pd.DataFrame(df_raw[df_raw["order_date"].dt.year == prior_year])
     with rc_col2:
         st.markdown("**Comparison Period (Current)**")
         curr_year = st.selectbox("Comparison Year:", available_years, index=min(1, len(available_years)-1), key="rc_curr_year_select")
-        curr_data = df_raw[df_raw["order_date"].dt.year == curr_year]
+        curr_data = pd.DataFrame(df_raw[df_raw["order_date"].dt.year == curr_year])
 
     if prior_year == curr_year:
         st.info("ℹ️ Select two different years above to analyze period-over-period variance decomposition.")
@@ -712,7 +715,7 @@ with tab_report:
         rep_end = df_filtered["order_date"].max().strftime("%Y-%m-%d")
         
         # Scenario result from tab 5 (if levers were used, otherwise baseline)
-        if "sim_result" in locals() and sim_result:
+        if sim_result is not None:
             rep_sim = sim_result
         else:
             rep_sim = simulate_scenario(df_filtered)
@@ -720,7 +723,7 @@ with tab_report:
         # Include root-cause variance and driver findings in report if prior period exists
         r_decomp = None
         r_pos, r_neg = None, None
-        if "df_prior" in locals() and not df_prior.empty and not df_filtered.empty:
+        if df_prior is not None and not df_prior.empty and not df_filtered.empty:
             try:
                 r_decomp = decompose_profit_variance(df_prior, df_filtered)
                 r_pos, r_neg = identify_top_contributors(df_prior, df_filtered, dimension_col="product_category", top_n=3)

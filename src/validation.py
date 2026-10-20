@@ -182,7 +182,7 @@ def validate_dataset(df: Optional[pd.DataFrame]) -> ValidationReport:
         )
 
     # Check line_item_id uniqueness if present
-    if "line_item_id" in df.columns and df["line_item_id"].notna().all():
+    if "line_item_id" in df.columns and bool(df["line_item_id"].notna().all()):
         line_item_dups = int(df["line_item_id"].duplicated().sum())
         if line_item_dups > 0:
             issues.append(
@@ -312,13 +312,13 @@ def validate_dataset(df: Optional[pd.DataFrame]) -> ValidationReport:
     # 12. Check for order-level cost duplication risk
     # If shipping_cost or marketing_cost is constant and repeated identically across multi-item orders
     if "order_id" in df.columns and "shipping_cost" in df.columns:
-        multi_line_orders = df.groupby("order_id").filter(lambda g: len(g) > 1)
+        multi_line_orders = pd.DataFrame(df.groupby("order_id").filter(lambda g: len(g) > 1))
         if not multi_line_orders.empty:
             # Check if total shipping on order lines sums to realistic amounts or if order-level cost was pasted on each line
             nunique_shipping_per_order = multi_line_orders.groupby("order_id")["shipping_cost"].nunique()
-            # If every multi-line order has exactly identical non-zero shipping on every line, warn user
-            identical_shipping_orders = (nunique_shipping_per_order == 1).sum()
-            total_multi_orders = multi_line_orders["order_id"].nunique()
+            # If every multi-line order has identical non-zero shipping on every line, warn user
+            identical_shipping_orders = int((nunique_shipping_per_order == 1).sum())
+            total_multi_orders = int(multi_line_orders["order_id"].nunique())
             if total_multi_orders > 10 and (identical_shipping_orders / total_multi_orders) > 0.8:
                 issues.append(
                     ValidationIssue(

@@ -53,7 +53,7 @@ def query_monthly_trend(
 
     sql = f"""
     SELECT 
-        STRFTIME(order_date, '%Y-%m') AS order_month,
+        STRFTIME(TRY_CAST(order_date AS TIMESTAMP), '%Y-%m') AS order_month,
         COUNT(DISTINCT order_id) AS total_orders,
         SUM(quantity) AS total_units,
         ROUND(SUM(quantity * unit_price), 2) AS gross_revenue,
@@ -79,7 +79,7 @@ def query_monthly_trend(
         ) AS profit_margin_pct
     FROM {table_name}
     WHERE {where_sql}
-    GROUP BY STRFTIME(order_date, '%Y-%m')
+    GROUP BY STRFTIME(TRY_CAST(order_date AS TIMESTAMP), '%Y-%m')
     ORDER BY order_month ASC;
     """
 

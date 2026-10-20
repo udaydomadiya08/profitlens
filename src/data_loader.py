@@ -5,7 +5,7 @@ Provides pure Python/Pandas loading routines and DuckDB in-memory integration.
 
 import os
 from io import StringIO, BytesIO
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Any
 import duckdb
 import pandas as pd
 
@@ -39,7 +39,7 @@ ALL_KNOWN_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 
 
 def load_dataset(
-    source: Union[str, StringIO, BytesIO],
+    source: Optional[Any] = None,
     date_col: str = "order_date",
     default_sample_path: str = "data/sample_retail_data.csv",
 ) -> pd.DataFrame:
@@ -68,7 +68,9 @@ def load_dataset(
         if os.path.exists(alt_path):
             source = alt_path
 
-    if hasattr(source, "read") or isinstance(source, (str, bytes)):
+    if isinstance(source, bytes):
+        df = pd.read_csv(BytesIO(source))
+    elif isinstance(source, str) or hasattr(source, "read"):
         df = pd.read_csv(source)
     else:
         raise ValueError(f"Unsupported source type: {type(source)}")
@@ -150,7 +152,15 @@ def init_duckdb_session(df: Optional[pd.DataFrame] = None, table_name: str = "re
     if df is not None and not df.empty:
         con.register(table_name, df)
     elif df is not None:
-        # Register empty dataframe with known columns to prevent CatalogError
-        empty_cols = list(df.columns) if not df.columns.empty else ALL_KNOWN_COLUMNS
-        con.register(table_name, pd.DataFrame(columns=empty_cols))
+        # Register empty dataframe with typed columns to prevent CatalogError and BinderError
+        col_names = [str(c) for c in df.columns] if len(df.columns) > 0 else list(ALL_KNOWN_COLUMNS)
+        empty_data = {}
+        for c in col_names:
+            if c == "order_date":
+                empty_data[c] = pd.Series([], dtype="datetime64[ns]")
+            elif c in ["quantity", "unit_price", "unit_cost", "discount", "marketing_cost", "shipping_cost", "returned"]:
+                empty_data[c] = pd.Series([], dtype="float64")
+            else:
+                empty_data[c] = pd.Series([], dtype="object")
+        con.register(table_name, pd.DataFrame(empty_data))
     return con

@@ -1,0 +1,10 @@
+types-PyMySQL
+types-PyYAML
+types-cachetools
+types-decorator
+types-pycurl
+types-pytz
+types-requests
+types-simplejson
+types-tabulate
+types-toml

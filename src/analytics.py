@@ -158,8 +158,8 @@ def identify_top_contributors(
     segment_results: List[SegmentPerformanceChange] = []
 
     for seg in all_segments:
-        p_sub = prior_df[prior_df[dimension_col] == seg]
-        c_sub = current_df[current_df[dimension_col] == seg]
+        p_sub = pd.DataFrame(prior_df[prior_df[dimension_col] == seg])
+        c_sub = pd.DataFrame(current_df[current_df[dimension_col] == seg])
 
         p_m = calculate_financial_summary(p_sub)
         c_m = calculate_financial_summary(c_sub)
