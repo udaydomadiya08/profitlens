@@ -1,11 +1,13 @@
 # ProfitLens 🔍 | Business Performance & Profit Intelligence Engine
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://profitlens.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://profitlens08.streamlit.app)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-udaydomadiya08%2Fprofitlens-blue?logo=github)](https://github.com/udaydomadiya08/profitlens)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-In--Memory%20SQL-yellow.svg)](https://duckdb.org/)
 [![pytest](https://img.shields.io/badge/pytest-30%20passed%20(95%25%20cov)-brightgreen.svg)](https://pytest.org/)
 
-> 🚀 **Live Demo:** [**Open ProfitLens on Streamlit Cloud**](https://profitlens.streamlit.app)  
+> 🚀 **Live Demo:** [**https://profitlens08.streamlit.app**](https://profitlens08.streamlit.app)  
+> 💻 **GitHub Repository:** [**https://github.com/udaydomadiya08/profitlens**](https://github.com/udaydomadiya08/profitlens)  
 > *One-Click Streamlit Cloud Deploy Link:* [Deploy on Streamlit Community Cloud](https://share.streamlit.io/deploy?repository=udaydomadiya08/profitlens&branch=main&mainModule=app.py)
 
 **ProfitLens** is an end-to-end business analytics application designed as a portfolio showcase for Senior Analyst and Analytics Engineering roles. It demonstrates the complete analytical lifecycle:
@@ -57,8 +59,12 @@ profitlens/
 ├── README.md                   # System documentation & showcase
 ├── .gitignore                  # Clean repository exclusions
 ├── data/
-│   ├── sample_retail_data.csv  # Reproducible 2-year synthetic dataset (8,368 records)
-│   └── generate_data.py        # Deterministic dataset generator (seed=42)
+│   ├── real_world_superstore_us.csv       # Kaggle/Tableau US Superstore (9,994 real transactions)
+│   ├── real_world_global_superstore.csv    # Worldwide commercial sales with shipping costs
+│   ├── real_world_supermarket_sales.csv    # Actual supermarket branch transactions with COGS
+│   ├── real_world_online_retail_uk.csv     # UCI Machine Learning Repository UK e-commerce
+│   ├── real_world_us_electronics.csv       # Keith Galli real multi-city electronics store
+│   └── sample_retail_data.csv              # Omnichannel benchmark dataset
 ├── docs/
 │   ├── metric_definitions.md   # Mathematical formulas & return policies
 │   ├── architecture.md         # Component boundaries & data lifecycle
