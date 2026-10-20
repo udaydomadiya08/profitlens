@@ -88,18 +88,19 @@ st.markdown("""
 # Data Loading & Caching
 # ---------------------------------------------------------
 SAMPLE_DATASETS = {
-    "Omnichannel Retail Benchmark (Default)": "data/sample_retail_data.csv",
-    "Global Superstore (Tech, Furniture & Office Supplies)": "data/global_superstore.csv",
-    "Fashion & Apparel E-Commerce (Returns & Promotions)": "data/fashion_apparel.csv",
-    "D2C Health, Beauty & Cosmetics (CAC & High Margins)": "data/d2c_beauty_wellness.csv",
-    "B2B SaaS & Hardware Infrastructure (Enterprise Deals)": "data/b2b_saas_hardware.csv",
+    "US Superstore Sales & Profit (Kaggle/Tableau Benchmark)": "data/real_world_superstore_us.csv",
+    "Global Superstore Commercial (Worldwide Multi-Market)": "data/real_world_global_superstore.csv",
+    "Supermarket Branch Operations (Actual COGS & Margins)": "data/real_world_supermarket_sales.csv",
+    "UCI Online Retail (UK & International E-Commerce)": "data/real_world_online_retail_uk.csv",
+    "US Electronics Retail Chain (Keith Galli / Multi-City)": "data/real_world_us_electronics.csv",
+    "Synthetic Omnichannel Benchmark (Illustrative Anomaly)": "data/sample_retail_data.csv",
 }
 
 @st.cache_data(show_spinner=False)
 def get_dataset(source_path_or_file=None):
     if source_path_or_file is not None:
         return load_dataset(source_path_or_file)
-    return load_dataset("data/sample_retail_data.csv")
+    return load_dataset("data/real_world_superstore_us.csv")
 
 
 # ---------------------------------------------------------
@@ -120,7 +121,7 @@ with st.sidebar:
     st.subheader("📁 Data Source")
     data_mode = st.radio(
         "Choose Data Source:",
-        ["Curated Sample Datasets (5 Available)", "Upload Custom CSV"],
+        ["Authentic Public Datasets (5 Available)", "Upload Custom CSV"],
         index=0
     )
     
@@ -130,17 +131,17 @@ with st.sidebar:
         if uploaded_file is not None:
             active_source = uploaded_file
         else:
-            st.info("Using sample retail data until a file is uploaded.")
-            active_source = "data/sample_retail_data.csv"
+            st.info("Using real-world US Superstore data until a file is uploaded.")
+            active_source = "data/real_world_superstore_us.csv"
     else:
         selected_sample_name = st.selectbox(
-            "Select Benchmark Dataset:",
+            "Select Real-World Dataset:",
             list(SAMPLE_DATASETS.keys()),
             index=0
         )
         active_source = SAMPLE_DATASETS[selected_sample_name]
         
-        # Provide quick download button for the active sample CSV
+        # Quick download button for the active real-world CSV
         if os.path.exists(active_source):
             with open(active_source, "rb") as f_sample:
                 st.download_button(
